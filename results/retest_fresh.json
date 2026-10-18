@@ -1,0 +1,38 @@
+[
+  {
+    "question": "Are reviews that say 'too short' less likely to be recommended?",
+    "target_phrase": "too short",
+    "expected_pct": "75.8",
+    "keywords_searched": [
+      "too short"
+    ],
+    "answer": "Reviews that mention 'too short' are indeed less likely to be recommended. \n\nBased on **525** reviews mentioning 'too short', the recommendation percentage is **75.8%**, with an average rating of **4**. \n\nFor comparison, across the overall dataset of **22,641** reviews, the recommendation percentage is higher at **81.9%**, with an average rating of **4.18**.",
+    "passed": true,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T12:28:53"
+  },
+  {
+    "question": "What is the recommend rate among customers saying an item is too big?",
+    "target_phrase": "too big",
+    "expected_pct": "73.3",
+    "keywords_searched": [
+      "too big"
+    ],
+    "answer": "Based on the customer reviews, for reviews mentioning the exact phrase **\"too big\"**:\n\n* **Number of reviews:** 558\n* **Average star rating:** 3.74\n* **Recommend percentage:** 73.3%",
+    "passed": true,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T12:29:08"
+  },
+  {
+    "question": "Do reviews mentioning 'too long' have a different recommend rate from the rest?",
+    "target_phrase": "too long",
+    "expected_pct": "84.3",
+    "keywords_searched": [
+      "too long"
+    ],
+    "answer": "Based on the dataset:\n\n* **Overall dataset:** The recommend rate is **81.9%** (across 22,641 total reviews).\n* **Reviews mentioning 'too long':** The recommend rate is **84.3%** (based on 420 reviews, with an average rating of 4.12). \n\nYes, reviews mentioning \"too long\" have a slightly higher recommend rate (84.3%) compared to the overall dataset average (81.9%).",
+    "passed": true,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T12:29:25"
+  }
+]

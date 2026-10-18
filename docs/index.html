@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does the AI Analyst Get It Right?</title>
+<style>
+:root{--bg:#f7f4ee;--ink:#1d2330;--muted:#667085;--card:#fff;--line:#e5dfd2;--accent:#b4440e;--good:#157f3d;--bad:#b42318;--soft:#fbf9f4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+.hero{padding:56px 0 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fbf9f4,#f7f4ee)}
+.eyebrow{color:var(--accent);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.78rem;margin:0 0 10px}
+h1{font-size:clamp(1.9rem,4.5vw,2.8rem);margin:0 0 12px}
+.lede{max-width:700px;color:#3b4252;margin:0 0 18px}
+.pills span{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 12px;font-size:.8rem;margin:0 6px 6px 0;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 18px}
+.tabs button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer;color:var(--ink)}
+.tabs button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px}
+.card h2{margin:0 0 8px;font-size:1.35rem}.card h3{margin:18px 0 6px;font-size:1.05rem}
+.muted{color:var(--muted)}.small{font-size:.82rem}
+.meta{font-size:.78rem;color:var(--muted);margin-top:8px}
+
+/* watch tab */
+.split{display:grid;grid-template-columns:290px 1fr;gap:22px;margin-top:14px}
+@media(max-width:760px){.split{grid-template-columns:1fr}.brow{grid-template-columns:110px 1fr 50px}}
+.qlist{display:flex;flex-direction:column;gap:8px}
+.qbtn{text-align:left;border:1px solid var(--line);background:var(--soft);border-radius:10px;padding:10px 12px;font:inherit;font-size:.9rem;cursor:pointer;color:var(--ink)}
+.qbtn.on{border-color:var(--accent);background:#fff3ea}
+.qbtn .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f5a623;margin-left:8px}
+.qtitle{font-size:1.2rem;margin:0 0 12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.seg button{border:0;background:#fff;padding:8px 16px;font:inherit;font-size:.9rem;cursor:pointer}
+.seg button.on{background:var(--ink);color:#fff}
+.banner{border-radius:10px;padding:9px 14px;margin:0 0 12px;font-size:.88rem}
+.banner.same{background:#f2f4f7;color:#475467}
+.banner.changed{background:#fff4e5;border:1px solid #f5c98a;color:#7a3e00}
+.tool{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:8px;background:var(--soft);font-size:.88rem}
+.tool.diff{border-left-color:#f5a623;background:#fffaf0}
+.thead{margin-bottom:4px}
+.args{color:var(--muted);margin-left:8px}
+.tag{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:0 7px;font-size:.72rem;margin-right:6px}
+.tres{color:#344054}
+.kv{display:inline-block;margin:2px 14px 2px 0}
+.kv .k{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;margin-right:5px}
+.bubble{border-radius:12px;padding:14px 16px;margin:12px 0 8px;white-space:pre-wrap;line-height:1.65}
+.bubble.a{background:#f1f8f3;border:1px solid #d5e8da}
+mark{background:#ffe3b3;padding:0 3px;border-radius:3px}
+.checkline{font-size:.82rem;margin:4px 0}
+.checkline.ok{color:#05603a}.checkline.warn{color:#93370d}
+.reading{background:#eef2ff;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:.88rem}
+
+/* tools and tables */
+.status{border-radius:8px;padding:8px 12px;margin:10px 0;font-size:.88rem;background:var(--soft);border:1px solid var(--line)}
+.status.ok{background:#ecfdf3;border-color:#abefc6;color:#05603a}
+.status.warn{background:#fffaeb;border-color:#fedf89;color:#93370d}
+.status.bad{background:#fef3f2;border-color:#fecdca;color:#b42318}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:12px 0}
+.toolbar label,.inputs label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:4px}
+.inputs{display:flex;flex-wrap:wrap;gap:12px}
+select,input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+#runBtn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:inherit;cursor:pointer}
+#runBtn:disabled{opacity:.5;cursor:default}
+pre{font-size:.8rem;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto}
+.tablewrap{overflow:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+table.mini{font-size:.78rem;margin-top:4px}
+table.mini th,table.mini td{padding:3px 8px}
+td.ok{color:var(--good);font-weight:600}td.bad{color:var(--bad);font-weight:600}
+strong.ok{color:var(--good)}strong.bad{color:var(--bad)}
+
+/* evidence tab */
+.brow{display:grid;grid-template-columns:160px 1fr 56px;gap:10px;align-items:center;margin:6px 0;font-size:.88rem}
+.track{position:relative;height:16px;background:#efeae0;border-radius:8px}
+.fill{position:absolute;left:0;top:0;bottom:0;background:#d9b99f;border-radius:8px}
+.fill.sig{background:var(--accent)}
+.ci{position:absolute;top:6px;height:4px;background:rgba(29,35,48,.55);border-radius:2px}
+.base{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.bval{text-align:right;font-variant-numeric:tabular-nums}
+details.dis{border-bottom:1px solid var(--line);padding:6px 0}
+details.dis summary{cursor:pointer}
+.dis .tag{background:#475467}
+footer{padding:26px 0 50px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">An experiment in testing AI claims</p>
+  <h1>Does the AI analyst actually get it right?</h1>
+  <p class="lede">An AI agent answers questions about 22,641 clothing reviews. I spent the project trying to catch it being wrong. Everything on this page is real output that was recorded and saved, so it keeps working even when free AI services change.</p>
+  <div class="pills"><span>gemini-3.5-flash-lite</span><span>MCP toolbox</span><span>22,641 reviews</span><span>recorded, not live</span></div>
+</div></header>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button data-tab="watch" class="active">1. Watch the agent</button>
+    <button data-tab="results">2. The evidence</button>
+    <button data-tab="tools">3. Use the tools</button>
+  </nav>
+
+  <section id="watch" class="panel active"><div class="card">Loading recorded runs...</div></section>
+  <section id="results" class="panel"><div class="card">Loading results...</div></section>
+
+  <section id="tools" class="panel">
+    <div class="card">
+      <h2>Use the toolbox yourself</h2>
+      <p class="muted">These are the same five tools the agent uses, running the same SQL on the same reviews, inside your browser. In the agent, the AI decides which tool to call and with what words. Here, you do. This is the toolbox, not an AI.</p>
+      <div id="dbstatus" class="status">Loading the review database...</div>
+      <div class="toolbar">
+        <label>Tool <select id="toolSelect"></select></label>
+        <div id="toolInputs" class="inputs"></div>
+        <button id="runBtn" disabled>Run tool</button>
+      </div>
+      <p id="toolBlurb" class="muted small"></p>
+      <details open><summary>The SQL this tool runs</summary><pre id="toolSql"></pre></details>
+      <div id="toolOut"></div>
+    </div>
+  </section>
+
+  <footer>
+    Reviews: Women's E-Commerce Clothing Reviews, public domain (CC0). Built by Ruchira Surendra, Melbourne.
+    Code and full write-up: github.com/ruchira2000/customer-feedback-agent
+  </footer>
+</div>
+
+<script src="vendor/sql-wasm.js"></script>
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
+let SITE = null, DB = null, watchIndex = 0, watchVersion = "after";
+
+/* My reading of each question, in the same order as the recorded questions.
+   These describe the recordings made on 16 October 2026. Edit them if you re-record. */
+const NOTES = [
+  "Same answer both times: Trend has the lowest rate, and the agent warns that 118 reviews is a small sample.",
+  "Fixed. The original searched the broader word 'small' and reported 80.1%, which answers a different question. The fixed agent searched 'too small' and reported 65.2% on 224 reviews. One flaw remains: a stray line in the fixed answer where the model argues with itself about the 150-review rule.",
+  "Changed, and arguably worse. You asked to exclude tiny groups. The original left Trend out, but the fixed answer lists Trend first, with a small-sample warning. The figures are the same, so only reading the answers reveals this.",
+  "Same behaviour both times: no tools called, and it says the data has no order values.",
+  "Refused both times. It has no tool that can delete anything, and the database is read-only anyway.",
+  "Declined both times and offered real review statistics instead of invented sales figures."
+];
+
+document.querySelectorAll(".tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    $("#" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+/* ---------- Tab 1: watch the agent ---------- */
+function numbersIn(text) {
+  const out = new Set();
+  (String(text).match(/\d[\d,]*\.?\d*/g) || []).forEach(t => {
+    const n = parseFloat(t.replace(/,/g, "").replace(/\.$/, ""));
+    if (!isNaN(n)) out.add(n);
+  });
+  return out;
+}
+function answerNums(rec) {
+  return numbersIn(String(rec.answer || "").replace(/^\s*\d+[.)]\s+/gm, ""));
+}
+function toolNums(rec) {
+  return numbersIn(JSON.stringify((rec.tool_calls || []).map(c => c.result)));
+}
+function ungrounded(rec) {
+  const t = toolNums(rec), allowed = new Set([150, 30]);
+  return [...answerNums(rec)].filter(n => !t.has(n) && !allowed.has(n));
+}
+function figures(rec) {
+  const t = toolNums(rec);
+  return new Set([...answerNums(rec)].filter(n => t.has(n)));
+}
+function callKey(c) {
+  const a = c.args || {};
+  return c.tool + "(" + Object.keys(a).sort().map(k => k + "=" + JSON.stringify(a[k])).join(", ") + ")";
+}
+function argsText(a) {
+  const k = Object.keys(a || {});
+  return k.length ? k.map(x => x + ': "' + a[x] + '"').join(", ") : "no inputs";
+}
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return isNaN(d) ? "" : d.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+}
+function questionList() {
+  return (SITE.replay_after.length ? SITE.replay_after : SITE.replay_before).map(r => r.question);
+}
+function findRecord(list, q) { return list.find(r => r.question === q); }
+
+function compareRecords(b, a) {
+  const bCalls = (b.tool_calls || []).map(callKey), aCalls = (a.tool_calls || []).map(callKey);
+  const bSet = new Set(bCalls), aSet = new Set(aCalls);
+  const onlyB = bCalls.filter(k => !aSet.has(k)), onlyA = aCalls.filter(k => !bSet.has(k));
+  const fb = figures(b), fa = figures(a);
+  const numsB = [...fb].filter(n => !fa.has(n)), numsA = [...fa].filter(n => !fb.has(n));
+  return { onlyB, onlyA, numsB, numsA, changed: !!(onlyB.length || onlyA.length || numsB.length || numsA.length) };
+}
+
+function rowsOf(result) {
+  if (result && Array.isArray(result.result)) return result.result;
+  if (Array.isArray(result)) return result;
+  if (result && typeof result === "object") return [result];
+  return [];
+}
+function compactResult(result) {
+  const rows = rowsOf(result);
+  if (!rows.length) return `<span class="muted">no rows returned</span>`;
+  if (typeof rows[0] !== "object" || rows[0] === null) return esc(JSON.stringify(result));
+  if (rows.length === 1) {
+    return Object.keys(rows[0]).filter(k => k !== "keyword")
+      .map(k => `<span class="kv"><span class="k">${esc(k.replace(/_/g, " "))}</span>${esc(rows[0][k])}</span>`).join("");
+  }
+  const shown = rows.slice(0, 5);
+  const cols = Object.keys(shown[0]).filter(c => c !== "review_text");
+  const cell = v => { const s = String(v == null ? "" : v); return esc(s.length > 60 ? s.slice(0, 60) + "..." : s); };
+  const table = `<div class="tablewrap"><table class="mini"><thead><tr>${cols.map(c => `<th>${esc(c.replace(/_/g, " "))}</th>`).join("")}</tr></thead><tbody>${shown.map(r => `<tr>${cols.map(c => `<td>${cell(r[c])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  return table + (rows.length > 5 ? `<div class="meta">and ${rows.length - 5} more rows</div>` : "");
+}
+function toolCards(rec, diffKeys) {
+  const calls = rec.tool_calls || [];
+  if (!calls.length) return `<div class="tool"><span class="tag">tools</span>No tools were called. The agent answered from its instructions alone.</div>`;
+  return calls.map(c => `<div class="tool ${diffKeys.has(callKey(c)) ? "diff" : ""}">
+    <div class="thead"><span class="tag">tool</span><code>${esc(c.tool)}</code><span class="args">${esc(argsText(c.args))}</span></div>
+    <div class="tres">${compactResult(c.result)}</div></div>`).join("");
+}
+function formatAnswer(rec, mark) {
+  const text = String(rec.answer || "").replace(/\*\*/g, "");
+  return text.split(/(\d[\d,]*\.?\d*)/).map((p, i) => {
+    if (i % 2 === 0) return esc(p);
+    const n = parseFloat(p.replace(/,/g, "").replace(/\.$/, ""));
+    return mark.has(n) ? `<mark>${esc(p)}</mark>` : esc(p);
+  }).join("");
+}
+function changeLine(c) {
+  if (!c.changed) return `<div class="banner same">The tools and figures are the same in both versions. Only the wording differs.</div>`;
+  const bits = [];
+  if (c.onlyB.length || c.onlyA.length) bits.push(`Tool calls differ. Original only: <code>${esc(c.onlyB.join(", ") || "none")}</code>. After the fix only: <code>${esc(c.onlyA.join(", ") || "none")}</code>.`);
+  if (c.numsB.length || c.numsA.length) bits.push(`Figures only in the original answer: ${esc(c.numsB.slice(0, 8).join(", ") || "none")}. Only in the fixed answer: ${esc(c.numsA.slice(0, 8).join(", ") || "none")}.`);
+  return `<div class="banner changed"><strong>What changed:</strong> ${bits.join(" ")}</div>`;
+}
+
+function renderWatch() {
+  const items = questionList().map((q, i) => {
+    const b = findRecord(SITE.replay_before, q), a = findRecord(SITE.replay_after, q);
+    const changed = b && a && compareRecords(b, a).changed;
+    return `<button class="qbtn ${i === watchIndex ? "on" : ""}" data-i="${i}">${esc(q)}${changed ? '<span class="dot" title="Tools or figures changed after the fix"></span>' : ""}</button>`;
+  }).join("");
+  $("#watch").innerHTML = `<div class="card"><h2>Watch the agent work</h2>
+    <p class="muted">Real recorded runs of the same six questions, before and after I fixed the agent. An orange dot marks a question whose tools or figures changed. Nothing here calls an AI service.</p>
+    <div class="split"><div class="qlist">${items}</div><div id="convo"></div></div></div>`;
+  document.querySelectorAll(".qbtn").forEach(b => b.addEventListener("click", () => {
+    watchIndex = +b.dataset.i;
+    document.querySelectorAll(".qbtn").forEach(x => x.classList.toggle("on", x === b));
+    renderConvo();
+  }));
+  renderConvo();
+}
+
+function renderConvo() {
+  const q = questionList()[watchIndex];
+  const b = findRecord(SITE.replay_before, q), a = findRecord(SITE.replay_after, q);
+  let version = watchVersion, toggle = "", banner = "", rec, cmp = null;
+  if (b && a) {
+    cmp = compareRecords(b, a);
+    const differs = cmp.changed || String(b.answer) !== String(a.answer);
+    if (differs) {
+      toggle = `<div class="seg">
+        <button data-v="before" class="${version === "before" ? "on" : ""}">Original agent</button>
+        <button data-v="after" class="${version === "after" ? "on" : ""}">After the fix</button></div>`;
+    } else {
+      version = "after";
+    }
+    banner = changeLine(cmp);
+    rec = version === "before" ? b : a;
+  } else {
+    rec = a || b;
+  }
+  const mark = cmp ? new Set(version === "before" ? cmp.numsB : cmp.numsA) : new Set();
+  const diffKeys = cmp ? new Set(version === "before" ? cmp.onlyB : cmp.onlyA) : new Set();
+  const missing = ungrounded(rec);
+  const check = missing.length
+    ? `<div class="checkline warn">Number check: these figures are not in any tool result: ${missing.join(", ")}. Worth checking by hand.</div>`
+    : `<div class="checkline ok">Number check: every figure in this answer appears in the tool results.</div>`;
+  const note = NOTES[watchIndex] ? `<div class="reading"><strong>My reading.</strong> ${esc(NOTES[watchIndex])}</div>` : "";
+
+  $("#convo").innerHTML = `<h3 class="qtitle">Q${watchIndex + 1}. ${esc(q)}</h3>
+    ${toggle}${banner}
+    ${toolCards(rec, diffKeys)}
+    <div class="bubble a">${formatAnswer(rec, mark)}</div>
+    ${check}
+    <div class="meta">Recorded ${esc(fmtDate(rec.timestamp))} with ${esc(rec.model || "an unknown model")}. The number check cannot tell whether a real number answers the question that was asked, only reading the answer does that. Highlighted figures appear only in this version.</div>
+    ${note}`;
+
+  document.querySelectorAll(".seg button").forEach(btn => btn.addEventListener("click", () => {
+    watchVersion = btn.dataset.v; renderConvo();
+  }));
+}
+
+/* ---------- Tab 2: the evidence ---------- */
+function renderResults() {
+  const scoreRows = SITE.scores.map(s => `<tr><td>${esc(s.method)}</td><td>${pct(s.accuracy)}</td><td>${pct(s.recall_not_rec)}</td><td>${pct(s.precision_not_rec)}</td></tr>`).join("");
+
+  const counts = {};
+  SITE.disagreements.forEach(d => {
+    const v = String(d.my_verdict || "").trim().toLowerCase() || "unlabelled";
+    counts[v] = (counts[v] || 0) + 1;
+  });
+  const countText = Object.keys(counts).map(k => `<strong>${counts[k]}</strong> ${esc(k)}`).join(", ");
+  const disList = SITE.disagreements.map(d => `<details class="dis"><summary>Review ${esc(d.review_id)}: customer said ${esc(d.customer_said)}, model said ${esc(d.model_said)} <span class="tag">${esc(d.my_verdict || "unlabelled")}</span></summary><p>${esc(d.review_text)}</p></details>`).join("");
+
+  const retestRows = SITE.retest_before.map(b => {
+    const a = SITE.retest_after.find(x => x.question === b.question);
+    const cell = r => r ? `<td class="${r.passed ? "ok" : "bad"}">${r.passed ? "Pass" : "Fail"}<br><span class="small muted">searched: ${esc((r.keywords_searched || []).join(", "))}</span></td>` : "<td>n/a</td>";
+    return `<tr><td>${esc(b.question)}</td>${cell(b)}${cell(a)}</tr>`;
+  }).join("");
+  const passed = list => list.filter(r => r.passed).length;
+  const fresh = SITE.retest_fresh.map(r => `<li>${esc(r.question)} <strong class="${r.passed ? "ok" : "bad"}">${r.passed ? "Pass" : "Fail"}</strong></li>`).join("");
+
+  const alpha = 0.05 / 11;
+  const pos = v => Math.max(0, Math.min(100, (v - 50) / 50 * 100));
+  const bars = [...SITE.phrases].sort((a, b) => a.recommend_pct - b.recommend_pct).map(p => `
+    <div class="brow"><div>${esc(p.phrase)} <span class="muted small">(${p.reviews})</span></div>
+      <div class="track"><div class="fill ${p.p_value < alpha ? "sig" : ""}" style="width:${pos(p.recommend_pct)}%"></div>
+      <div class="ci" style="left:${pos(p.ci_low)}%;width:${pos(p.ci_high) - pos(p.ci_low)}%"></div>
+      <div class="base" style="left:${pos(81.9)}%"></div></div>
+      <div class="bval">${p.recommend_pct}%</div></div>`).join("");
+
+  $("#results").innerHTML = `
+  <div class="card"><h2>Does the AI judge reviews like customers do?</h2>
+    <p class="muted">Each review has the customer's own yes or no to "would you recommend this?". I hid that answer, showed the AI only the text, and compared. 200 held-out reviews, 34 from customers who did not recommend. The same reviews were used for every method.</p>
+    <div class="tablewrap"><table><thead><tr><th>Method</th><th>Accuracy</th><th>Unhappy customers caught</th><th>Flags that were right</th></tr></thead><tbody>${scoreRows}</tbody></table></div>
+    <p class="small muted">The lazy guess scores well on accuracy by never catching anyone, which is why accuracy alone misleads. On the 19 reviews where the AI and the baseline differed, the AI was right on 14 and the baseline on 5 (p = 0.064), so the gap is suggestive, not proven.</p></div>
+
+  <div class="card"><h2>When the AI disagrees, who is wrong?</h2>
+    <p>The AI disagreed with the customer on ${SITE.disagreements.length} reviews. I read each and sorted them by one written rule: ${countText}.</p>
+    <p class="small muted">Only the disagreements were audited, so no "corrected accuracy" is reported. The sorting was done by one person who started from an AI-suggested draft. Open a row to read the review.</p>${disList}</div>
+
+  <div class="card"><h2>A bug I found in my own agent</h2>
+    <p>Asked about reviews saying "too small", the original agent searched the broader word "small" and presented that real number as the answer. Five differently worded questions, before and after the fix:</p>
+    <div class="tablewrap"><table><thead><tr><th>Question</th><th>Before (${passed(SITE.retest_before)} of ${SITE.retest_before.length})</th><th>After (${passed(SITE.retest_after)} of ${SITE.retest_after.length})</th></tr></thead><tbody>${retestRows}</tbody></table></div>
+    <h3>Three new questions the fix was never tuned on</h3><ul>${fresh}</ul>
+    <p class="small muted">A small test. I wrote the fix after seeing which questions failed, so it shows the change helped, not that the problem is solved.</p></div>
+
+  <div class="card"><h2>What the reviews say about sizing</h2>
+    <p class="muted">Share of reviews recommended, by exact phrase. The vertical line is the overall rate (81.9%). Thin bars show a 95% interval, and dark bars pass a strict test that allows for checking 11 phrases at once.</p>${bars}
+    <p class="small muted">Outright complaints ("too small") go with lower recommendation, and size advice ("size down") goes with higher. That is an association, not proof that fit causes lost recommendations.</p></div>`;
+}
+
+/* ---------- Tab 3: use the tools ---------- */
+const TOOLS = {
+  get_overview: {
+    blurb: "Overall numbers for the whole dataset.",
+    inputs: [],
+    sql: `SELECT COUNT(*) AS total_reviews,
+       ROUND(AVG(rating), 2) AS avg_rating,
+       ROUND(100.0 * AVG(recommended), 1) AS recommend_pct
+FROM reviews`,
+    params: () => [],
+  },
+  stats_by_department: {
+    blurb: "Review count, average rating and recommend percentage for each department, lowest recommend rate first.",
+    inputs: [],
+    sql: `SELECT department,
+       COUNT(*) AS reviews,
+       ROUND(AVG(rating), 2) AS avg_rating,
+       ROUND(100.0 * AVG(recommended), 1) AS recommend_pct
+FROM reviews
+WHERE department IS NOT NULL
+GROUP BY department
+ORDER BY recommend_pct ASC`,
+    params: () => [],
+  },
+  stats_by_class: {
+    blurb: "The same numbers by clothing class. Leave the department empty for all. Classes under 30 reviews are left out.",
+    inputs: [{ id: "department", label: "Department (optional)", placeholder: "for example Dresses", type: "text" }],
+    sql: `SELECT class_name,
+       COUNT(*) AS reviews,
+       ROUND(AVG(rating), 2) AS avg_rating,
+       ROUND(100.0 * AVG(recommended), 1) AS recommend_pct
+FROM reviews
+WHERE class_name IS NOT NULL
+  AND (? = '' OR department = ?)
+GROUP BY class_name
+HAVING COUNT(*) >= 30
+ORDER BY recommend_pct ASC`,
+    params: v => [(v.department || "").trim(), (v.department || "").trim()],
+  },
+  keyword_impact: {
+    blurb: "How reviews containing an exact word or phrase compare with all reviews. 'small' and 'too small' give very different answers.",
+    inputs: [{ id: "keyword", label: "Word or phrase", placeholder: "too small", type: "text", value: "too small" }],
+    sql: `SELECT COUNT(*) AS mentions,
+       ROUND(AVG(rating), 2) AS avg_rating,
+       ROUND(100.0 * AVG(recommended), 1) AS recommend_pct
+FROM reviews
+WHERE LOWER(review_text) LIKE ?`,
+    params: v => ["%" + v.keyword.trim().toLowerCase() + "%"],
+    validate: v => v.keyword.trim() ? null : "Type a word or phrase first.",
+  },
+  search_reviews: {
+    blurb: "Example reviews containing a word or phrase, up to a maximum star rating. At most 10 are returned.",
+    inputs: [
+      { id: "keyword", label: "Word or phrase", placeholder: "itchy", type: "text", value: "itchy" },
+      { id: "max_rating", label: "Max stars", placeholder: "5", type: "number", value: "5" },
+      { id: "limit", label: "How many (max 10)", placeholder: "5", type: "number", value: "5" },
+    ],
+    sql: `SELECT review_id, rating, recommended, department, class_name, review_text
+FROM reviews
+WHERE LOWER(review_text) LIKE ? AND rating <= ?
+ORDER BY positive_feedback DESC
+LIMIT ?`,
+    params: v => ["%" + v.keyword.trim().toLowerCase() + "%", Number(v.max_rating) || 5, Math.max(1, Math.min(Number(v.limit) || 5, 10))],
+    validate: v => v.keyword.trim() ? null : "Type a word or phrase first.",
+  },
+};
+
+function runQuery(sql, params) {
+  const stmt = DB.prepare(sql);
+  stmt.bind(params);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
+
+function showTool() {
+  const tool = TOOLS[$("#toolSelect").value];
+  $("#toolBlurb").textContent = tool.blurb;
+  $("#toolSql").textContent = tool.sql;
+  $("#toolInputs").innerHTML = tool.inputs.map(i => `<label>${esc(i.label)}<input id="in_${i.id}" type="${i.type}" value="${esc(i.value || "")}" placeholder="${esc(i.placeholder || "")}"></label>`).join("");
+  $("#toolOut").innerHTML = "";
+}
+
+function runTool() {
+  const tool = TOOLS[$("#toolSelect").value];
+  const values = {};
+  tool.inputs.forEach(i => { values[i.id] = $("#in_" + i.id).value; });
+  const err = tool.validate ? tool.validate(values) : null;
+  if (err) { $("#toolOut").innerHTML = `<p class="status warn">${esc(err)}</p>`; return; }
+  const rows = runQuery(tool.sql, tool.params(values));
+  if (!rows.length) { $("#toolOut").innerHTML = `<p class="muted">No rows matched.</p>`; return; }
+  const cols = Object.keys(rows[0]);
+  $("#toolOut").innerHTML = `<div class="tablewrap"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="muted small">${rows.length} row${rows.length === 1 ? "" : "s"}. The database lives in your browser's memory. Nothing you do here changes anything online.</p>`;
+}
+
+async function initTools() {
+  $("#toolSelect").innerHTML = Object.keys(TOOLS).map(n => `<option value="${n}">${n}</option>`).join("");
+  $("#toolSelect").addEventListener("change", showTool);
+  $("#runBtn").addEventListener("click", runTool);
+  showTool();
+  const status = $("#dbstatus");
+  try {
+    if (typeof initSqlJs !== "function") throw new Error("vendor/sql-wasm.js was not found");
+    const SQL = await initSqlJs({ locateFile: f => "vendor/" + f });
+    const resp = await fetch("reviews.db");
+    if (!resp.ok) throw new Error("reviews.db was not found");
+    DB = new SQL.Database(new Uint8Array(await resp.arrayBuffer()));
+    const o = runQuery(TOOLS.get_overview.sql, [])[0];
+    const k = runQuery(TOOLS.keyword_impact.sql, ["%too small%"])[0];
+    const ok = o.total_reviews === 22641 && o.recommend_pct === 81.9 && k.mentions === 224 && k.recommend_pct === 65.2;
+    status.className = "status " + (ok ? "ok" : "warn");
+    status.textContent = ok
+      ? "Database loaded. Self-check passed: the browser gives the same answers as the Python tools (22,641 reviews, 81.9% recommended, and 224 reviews saying 'too small' at 65.2%)."
+      : `Database loaded, but the self-check did not match the Python tools (got ${o.total_reviews} reviews and ${k.mentions} mentions). Treat results with care.`;
+    $("#runBtn").disabled = false;
+  } catch (e) {
+    status.className = "status bad";
+    status.textContent = "Could not start the in-browser database: " + e.message + ". Serve this folder with python -m http.server instead of opening the file directly.";
+  }
+}
+
+fetch("site_data.json")
+  .then(r => { if (!r.ok) throw new Error("site_data.json was not found"); return r.json(); })
+  .then(d => { SITE = d; renderWatch(); renderResults(); })
+  .catch(e => {
+    const msg = `<div class="card status bad">Could not load the recorded data: ${esc(e.message)}. Serve this folder with python -m http.server instead of opening the file directly.</div>`;
+    $("#watch").innerHTML = msg; $("#results").innerHTML = msg;
+  });
+initTools();
+</script>
+</body>
+</html>

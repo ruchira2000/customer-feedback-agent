@@ -1,0 +1,62 @@
+[
+  {
+    "question": "Do customers who say items are too small recommend them less often?",
+    "target_phrase": "too small",
+    "expected_pct": "65.2",
+    "keywords_searched": [
+      "small"
+    ],
+    "answer": "Yes, customers who mention \"small\" in their reviews recommend the items less often than the overall average. \n\nAccording to the data:\n* **Overall dataset:** **81.9%** of customers recommend the products (based on 22,641 total reviews).\n* **Reviews mentioning \"small\":** **80.1%** of customers recommend the products (based on 4,283 reviews mentioning the keyword).",
+    "passed": false,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T11:43:05"
+  },
+  {
+    "question": "Is the phrase 'too small' in a review linked to a lower recommend rate?",
+    "target_phrase": "too small",
+    "expected_pct": "65.2",
+    "keywords_searched": [
+      "too small"
+    ],
+    "answer": "Yes, the phrase 'too small' is linked to a lower recommend rate. \n\nBased on 224 reviews mentioning 'too small', the recommend percentage is **65.2%** with an average rating of **3.42**. \n\nFor comparison, the overall dataset average recommend rate is **81.9%** across 22,641 total reviews (with an average rating of **4.18**). \n\n*(Note: The result for 'too small' is based on 224 reviews, which is above the 150-review threshold.)*",
+    "passed": true,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T11:43:26"
+  },
+  {
+    "question": "How do reviews saying 'too small' compare with all other reviews?",
+    "target_phrase": "too small",
+    "expected_pct": "65.2",
+    "keywords_searched": [
+      "small"
+    ],
+    "answer": "Based on the dataset:\n\n* **Overall dataset** (22,641 reviews):\n  * Average rating: **4.18**\n  * Recommendation percentage: **81.9%**\n\n* **Reviews mentioning 'small'** (4,283 reviews):\n  * Average rating: **4.07**\n  * Recommendation percentage: **80.1%**",
+    "passed": false,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T11:43:44"
+  },
+  {
+    "question": "Do customers complaining that clothes are too tight recommend them less?",
+    "target_phrase": "too tight",
+    "expected_pct": "80.8",
+    "keywords_searched": [
+      "tight"
+    ],
+    "answer": "Yes, customers complaining that clothes are too tight recommend them slightly less, but the difference is small. \n\nHere are the figures from the dataset:\n* **Overall dataset:** **81.9%** of customers recommend the products (based on 22,641 reviews).\n* **Reviews mentioning \"tight\":** **80.9%** of customers recommend the products (based on 1,752 mentions). \n\n*(Note: Since this is based on 1,752 reviews, which is well above 150, this sample size is reliable.)*",
+    "passed": false,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T11:44:03"
+  },
+  {
+    "question": "What recommend rate do reviews saying 'too large' have?",
+    "target_phrase": "too large",
+    "expected_pct": "68.8",
+    "keywords_searched": [
+      "too large"
+    ],
+    "answer": "Reviews mentioning 'too large' have a recommend rate of **68.8%** (based on 186 reviews).",
+    "passed": true,
+    "model": "gemini-3.5-flash-lite",
+    "timestamp": "2026-10-16T11:44:23"
+  }
+]
